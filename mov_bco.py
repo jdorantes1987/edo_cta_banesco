@@ -61,7 +61,11 @@ class MovimientosBancarios:
         datos = self.get_movimientos_bancarios(fecha_d=fecha_d, fecha_h=fecha_h)
         datos["fecha"] = to_datetime(datos["fecha"])
         datos["unicos"] = (
-            datos["fecha"].dt.month.astype("str") + "|" + datos["monto"].astype("str")
+            datos["fecha"].dt.month.astype("str")
+            + "|"
+            + datos["doc_num"]
+            + "|"
+            + datos["monto"].astype("str")
         )
         datos = get_identificador_unicos(datos, "unicos")
         datos.rename(columns={"identificador": "identif_mov_bco"}, inplace=True)

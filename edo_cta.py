@@ -40,6 +40,8 @@ def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
     df_edo_cta["unicos"] = (
         df_edo_cta["Fecha"].dt.month.astype("str")
         + "|"
+        + df_edo_cta["Referencia"]
+        + "|"
         + df_edo_cta["Monto"].astype("str")
     )
     df_edo_cta = get_identificador_unicos(df_edo_cta, "unicos")[lista_columnas]
