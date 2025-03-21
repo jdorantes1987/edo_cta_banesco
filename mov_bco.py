@@ -42,7 +42,7 @@ class MovimientosBancarios:
         # Se debe cambiar el nombre de la columna, a través de cada índice, debido a que la consulta no asigna un nombre único a cada columna
         datos.columns.values[8] = "monto_d_encab"
         datos.columns.values[9] = "monto_h_encab"
-        columnas_a_limpiar_espacios = ["mov_num", "co_cta_ingr_egr"]
+        columnas_a_limpiar_espacios = ["mov_num", "doc_num", "co_cta_ingr_egr"]
 
         # Aplicar strip() a varias columnas
         datos[columnas_a_limpiar_espacios] = datos[columnas_a_limpiar_espacios].apply(
@@ -68,6 +68,7 @@ class MovimientosBancarios:
             + datos["monto"].astype("str")
         )
         datos = get_identificador_unicos(datos, "unicos")
+        datos.drop(columns=["unicos"], inplace=True)
         datos.rename(columns={"identificador": "identif_mov_bco"}, inplace=True)
         return datos
 
