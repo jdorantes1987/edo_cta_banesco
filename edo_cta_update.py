@@ -58,7 +58,7 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "greater": {"red": 0.67, "green": 0.89, "blue": 0.75},
+            "greater": {"red": 0.68043, "green": 0.895, "blue": 0.7616},
             "equal": {"red": 0.29, "green": 0.78, "blue": 0.52},
             "zero": {"red": 1, "green": 0.61, "blue": 0.53},
             "default": {"red": 1, "green": 1, "blue": 1},
@@ -128,7 +128,7 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "greater": {"red": 0.55327, "green": 0.61775, "blue": 0.76934},
+            "greater": {"red": 0.40694, "green": 0.40692, "blue": 0.40688},
             "equal": {"red": 0.29, "green": 0.78, "blue": 0.52},
             "zero": {"red": 1, "green": 0.61, "blue": 0.53},
             "default": {"red": 1, "green": 1, "blue": 1},
@@ -197,7 +197,7 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "no_conciliados": {"red": 0.97169, "green": 0.97163, "blue": 0.47108},
+            "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.38426},
         }
 
         # recorre los datos de las columnas a y b y establece el color de fondo según la condición
