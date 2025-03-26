@@ -5,6 +5,7 @@ sys.path.append("..\\profit")
 from conn.conexion import DatabaseConnector
 from dotenv import load_dotenv
 from pandas import merge
+from data.mod.compra.cie import CuentasIngresoEgreso
 
 from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
@@ -88,6 +89,24 @@ class Conciliacion:
         )
         return movimientos_bancarios_identificados
 
+    def validacion_movimientos_a_insertar(self):
+        mov_sin_ident = self.get_movimientos_bancarios_sin_identificar(mov="E")
+        cuentas_ing_egr = CuentasIngresoEgreso(
+            self.conn
+        ).get_cuentas_ingreso_y_egreso()[["co_cta_ingr_egr", "descrip"]]
+        data = merge(
+            mov_sin_ident,
+            cuentas_ing_egr,
+            how="left",
+            left_on="Estatus",
+            right_on="co_cta_ingr_egr",
+        )
+        return data[~data["co_cta_ingr_egr"].isnull()]
+
+    def get_movimientos_a_insertar(self):
+        datos = self.validacion_movimientos_a_insertar()
+        return datos
+
 
 if __name__ == "__main__":
     f_desde = "20250101"
@@ -102,5 +121,5 @@ if __name__ == "__main__":
     oConciliacion = Conciliacion(
         conexion=oConexion, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
-    datos = oConciliacion.get_movimientos_bancarios_sin_identificar(mov="E")
-    datos.to_excel("datos.xlsx", index=False)
+    datos = oConciliacion.get_movimientos_a_insertar()
+    print(datos)
