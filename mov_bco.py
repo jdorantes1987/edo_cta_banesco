@@ -26,6 +26,8 @@ class MovimientosBancarios:
             "descrip",
             "doc_num",
             "monto",
+            "origen",
+            "cob_pag",
         ]
 
         sql = f"""
