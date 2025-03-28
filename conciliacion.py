@@ -7,7 +7,7 @@ from data.mod.compra.cie import CuentasIngresoEgreso
 from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
 from dotenv import load_dotenv
 from numpy import where
-from pandas import merge
+from pandas import merge, concat
 
 from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
@@ -24,7 +24,7 @@ class Conciliacion:
             conexion
         ).get_movimientos_bancarios_con_identif(fecha_d=fecha_d, fecha_h=fecha_h)
 
-    def get_movimientos_bancarios_identificados(self, **kwargs):
+    def get_movimientos_bancarios_identificados(self):
         conjunto_edo_cta = set(self.mov_edo_cta["identif_edo_cta"])
         movimientos_bancarios = self.mov_bancarios
         conjunto_mov_bco = set(movimientos_bancarios["identif_mov_bco"])
@@ -91,6 +91,128 @@ class Conciliacion:
         )
         return movimientos_bancarios_identificados
 
+    def get_movimientos_actualizar_edo_cta(self):
+        columnas_base = [
+            "fecha",
+            "mov_num",
+            "cie",
+            "concepto",
+            "referencia",
+            "monto",
+            "identif_mov_bco",
+            "tipo_p",
+        ]
+        mov_identificados = self.get_movimientos_bancarios_identificados().copy()
+
+        # Establece el número de movimiento bancario de acuerdo al tipo de operación (Movimiento de Banco, Cobro o Pago)
+        mov_identificados["mov_num"] = where(
+            mov_identificados["origen"] != "BAN",
+            mov_identificados["cob_pag"],
+            mov_identificados["mov_num"],
+        )
+
+        # Establece el nombre base que deben tener las columnas
+        mov_identificados.rename(
+            columns={
+                "co_cta_ingr_egr": "cie",
+                "descrip": "concepto",
+                "doc_num": "referencia",
+            },
+            inplace=True,
+        )
+
+        # Se establece el tipo de partida
+        mov_identificados["tipo_p"] = "B1"
+
+        # Se seleccionan las columnas base
+        mov_identificados = mov_identificados[columnas_base]
+
+        mov_identificados_otros_meses = (
+            self.get_movimientos_bancarios_identificados_de_otros_meses().copy()
+        )
+
+        # Resume las columnas del resultado obtenido de los movimientos identificados de otros meses
+        mov_identificados_otros_meses = mov_identificados_otros_meses[
+            [
+                "Fecha",
+                "mov_num",
+                "co_cta_ingr_egr",
+                "descrip",
+                "doc_num",
+                "monto",
+                "origen",
+                "cob_pag",
+                "correl",
+                "identif_edo_cta",
+            ]
+        ]
+
+        # Establece el nombre base que deben tener las columnas
+        mov_identificados_otros_meses.rename(
+            columns={
+                "Fecha": "fecha",
+                "co_cta_ingr_egr": "cie",
+                "doc_num": "referencia",
+                "descrip": "concepto",
+                "doc_num": "referencia",
+                "identif_edo_cta": "identif_mov_bco",
+            },
+            inplace=True,
+        )
+
+        # Se establece el tipo de partida
+        mov_identificados_otros_meses["tipo_p"] = "B2"
+
+        # Se seleccionan las columnas base
+        mov_identificados_otros_meses = mov_identificados_otros_meses[columnas_base]
+
+        mov_sin_identificar = self.get_movimientos_bancarios_sin_identificar(
+            mov="E"
+        ).copy()
+
+        # Establece el nombre base que deben tener las columnas
+        mov_sin_identificar.rename(
+            columns={
+                "Fecha": "fecha",
+                "Estatus": "cie",
+                "Referencia": "referencia",
+                "Descripción": "concepto",
+                "doc_num": "referencia",
+                "Monto": "monto",
+                "identif_edo_cta": "identif_mov_bco",
+            },
+            inplace=True,
+        )
+
+        # En el caso de las partidas sin identificar no tienen un número de movimiento
+        mov_sin_identificar["mov_num"] = ""
+
+        # Se establece el tipo de partida
+        mov_sin_identificar["tipo_p"] = "B3"
+
+        # Se seleccionan las columnas base
+        mov_sin_identificar = mov_sin_identificar[columnas_base]
+
+        set_mov_identif_otros_meses = set(
+            mov_identificados_otros_meses["identif_mov_bco"]
+        )
+
+        # se excluye los movimientos identificados de otros meses
+        mov_sin_identificar = mov_sin_identificar[
+            ~mov_sin_identificar["identif_mov_bco"].isin(set_mov_identif_otros_meses)
+        ]
+
+        mov_a_actualizar = concat(
+            [
+                mov_identificados,
+                mov_identificados_otros_meses,
+                mov_sin_identificar,
+            ],
+            axis=0,
+        )
+
+        return mov_a_actualizar.sort_values(by=["fecha", "mov_num"], ascending=True)
+
     def validacion_movimientos_a_insertar(self):
         mov_sin_ident = self.get_movimientos_bancarios_sin_identificar(mov="E")
         cuentas_ing_egr = CuentasIngresoEgreso(
@@ -145,5 +267,5 @@ if __name__ == "__main__":
     oConciliacion = Conciliacion(
         conexion=oConexion, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
-    datos = oConciliacion.get_movimientos_bancarios_sin_identificar(mov="L")
+    datos = oConciliacion.insertar_movimientos_identificados()
     print(datos)
