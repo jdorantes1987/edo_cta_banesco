@@ -3,9 +3,11 @@ import sys
 
 sys.path.append("..\\profit")
 from conn.conexion import DatabaseConnector
-from dotenv import load_dotenv
-from pandas import merge
 from data.mod.compra.cie import CuentasIngresoEgreso
+from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
+from dotenv import load_dotenv
+from numpy import where
+from pandas import merge
 
 from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
@@ -101,10 +103,32 @@ class Conciliacion:
             left_on="Estatus",
             right_on="co_cta_ingr_egr",
         )
-        return data[~data["co_cta_ingr_egr"].isnull()]
+        data["Comentarios"] = where(
+            data["Comentarios"] == "",
+            data["Descripción"],
+            data["Comentarios"].str[:159],  # Limita la longitud de la cadena
+        )
+        return data[
+            (~data["co_cta_ingr_egr"].isnull())
+            & (data["Contabilizar"].str.upper() == "SI")
+        ]
 
-    def get_movimientos_a_insertar(self):
+    def insertar_movimientos_identificados(self):
         datos = self.validacion_movimientos_a_insertar()
+        oMovBancariosOper = MovimientosBacariosOperaciones(self.conn)
+        last_id_movbanco = oMovBancariosOper.get_last_id_movbanco("20250331")
+        for index, row in datos.iterrows():
+            new_id_movbanco = oMovBancariosOper.get_next_id_movbanco(last_id_movbanco)
+            oMovBancariosOper.new_movbanco(
+                id_m=new_id_movbanco,
+                descrip=row["Comentarios"],
+                c_ingegr=row["co_cta_ingr_egr"],
+                fecha_emision=row["Fecha"].strftime("%Y%m%d"),
+                ref_bco=row["Referencia"],
+                monto_mov=row["Monto"],
+                monto_idb=0.0,
+            )
+        oMovBancariosOper.confirmar_insercion_movimientos_bancarios()
         return datos
 
 
@@ -121,5 +145,5 @@ if __name__ == "__main__":
     oConciliacion = Conciliacion(
         conexion=oConexion, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
-    datos = oConciliacion.get_movimientos_a_insertar()
+    datos = oConciliacion.get_movimientos_bancarios_sin_identificar(mov="L")
     print(datos)
