@@ -2,7 +2,7 @@ import gspread
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
 from pandas import merge
-from numpy import nan
+from numpy import nan, where
 
 from conciliacion import Conciliacion
 from edo_cta import get_edo_cta_con_identificador
@@ -45,7 +45,7 @@ class EdoCtaUpdate:
 
         movimientos_edo_cta = get_edo_cta_con_identificador(sheet_name)
 
-        movimientos_identificados = merge(
+        mov_ident = merge(
             movimientos_edo_cta,
             movimientos_bancarios,
             how="left",
@@ -53,22 +53,23 @@ class EdoCtaUpdate:
             right_on="identif_mov_bco",
         )
 
+        mov_ident["mov_num"] = where(
+            mov_ident["origen"] != "BAN", mov_ident["cob_pag"], mov_ident["mov_num"]
+        )
+
         # Acumula las celdas que necesitan ser actualizadas
         requests = []
 
         # definir los colores de fondo
         colors = {
-            "greater": {"red": 0.68043, "green": 0.895, "blue": 0.7616},
-            "equal": {"red": 0.29, "green": 0.78, "blue": 0.52},
-            "zero": {"red": 1, "green": 0.61, "blue": 0.53},
-            "default": {"red": 1, "green": 1, "blue": 1},
+            "conciliado": {"red": 0.79448, "green": 0.92317, "blue": 0.71823},
         }
 
         # recorre los datos de las columnas a y b y establece el color de fondo según la condición
-        nro_registros = len(movimientos_identificados)
+        nro_registros = len(mov_ident)
         for i in range(nro_registros):
-            if movimientos_identificados.loc[i, "identif_mov_bco"] is not nan:
-                color = colors["greater"]
+            if mov_ident.loc[i, "identif_mov_bco"] is not nan:
+                color = colors["conciliado"]
                 # agregar la solicitud de actualización de color
                 requests.append(
                     {
@@ -82,6 +83,34 @@ class EdoCtaUpdate:
                             },
                             "cell": {"userEnteredFormat": {"backgroundColor": color}},
                             "fields": "userEnteredFormat.backgroundColor",
+                        }
+                    }
+                )
+                cie = mov_ident.loc[i, "co_cta_ingr_egr"]
+                nro_mov = mov_ident.loc[i, "mov_num"]
+                requests.append(
+                    {
+                        "updateCells": {
+                            "range": {
+                                "sheetId": self.worksheet.id,
+                                "startRowIndex": i + 1,
+                                "endRowIndex": i + 2,
+                                "startColumnIndex": 6,
+                                "endColumnIndex": 8,
+                            },
+                            "rows": [
+                                {
+                                    "values": [
+                                        {
+                                            "userEnteredValue": {
+                                                "stringValue": cie + " -> " + nro_mov
+                                            }
+                                        },
+                                        {"userEnteredValue": {"stringValue": ""}},
+                                    ]
+                                }
+                            ],
+                            "fields": "userEnteredValue",
                         }
                     }
                 )
@@ -128,17 +157,15 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "greater": {"red": 0.40694, "green": 0.40692, "blue": 0.40688},
-            "equal": {"red": 0.29, "green": 0.78, "blue": 0.52},
-            "zero": {"red": 1, "green": 0.61, "blue": 0.53},
-            "default": {"red": 1, "green": 1, "blue": 1},
+            "otros": {"red": 0.94743, "green": 0.94738, "blue": 0.94728},
+            "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
         }
 
         # recorre los datos de las columnas a y b y establece el color de fondo según la condición
         nro_registros = len(movimientos_identificados)
         for i in range(nro_registros):
             if movimientos_identificados.loc[i, "identif_mov_bco"] is not nan:
-                color = colors["greater"]
+                color = colors["otros"]
                 # agregar la solicitud de actualización de color
                 requests.append(
                     {
@@ -197,7 +224,7 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.38426},
+            "no_conciliados": {"red": 0.99207, "green": 0.97163, "blue": 0.84097},
         }
 
         # recorre los datos de las columnas a y b y establece el color de fondo según la condición
@@ -221,6 +248,29 @@ class EdoCtaUpdate:
                             },
                             "cell": {"userEnteredFormat": {"backgroundColor": color}},
                             "fields": "userEnteredFormat.backgroundColor",
+                        }
+                    }
+                )
+
+                requests.append(
+                    {
+                        "updateCells": {
+                            "range": {
+                                "sheetId": self.worksheet.id,
+                                "startRowIndex": i + 1,
+                                "endRowIndex": i + 2,
+                                "startColumnIndex": 6,
+                                "endColumnIndex": 8,
+                            },
+                            "rows": [
+                                {
+                                    "values": [
+                                        {"userEnteredValue": {"stringValue": ""}},
+                                        {"userEnteredValue": {"stringValue": ""}},
+                                    ]
+                                }
+                            ],
+                            "fields": "userEnteredValue",
                         }
                     }
                 )
