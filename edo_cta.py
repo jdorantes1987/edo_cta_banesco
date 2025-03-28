@@ -14,7 +14,16 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
 def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
     client = gspread.authorize(creds)
     spreadsheet = client.open("edo_cta_banesco")
-    lista_columnas = ["Fecha", "Referencia", "Descripción", "Monto", "identificador"]
+    lista_columnas = [
+        "Fecha",
+        "Referencia",
+        "Descripción",
+        "Monto",
+        "Comentarios",
+        "Estatus",
+        "Contabilizar",
+        "identificador",
+    ]
     worksheet = spreadsheet.worksheet(sheet_name)
 
     # Obtiene todos los valores de la hoja de cálculo
