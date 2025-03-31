@@ -60,10 +60,11 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "conciliado": {"red": 0.79448, "green": 0.92317, "blue": 0.71823},
-            "otros": {"red": 0.94743, "green": 0.94738, "blue": 0.94728},
+            "conciliado": {"red": 0.84193, "green": 0.96354, "blue": 0.90938},
+            "otros": {"red": 0.81498, "green": 0.81494, "blue": 0.81485},
             "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
-            "no_conciliados": {"red": 0.99207, "green": 0.97163, "blue": 0.84097},
+            "comisiones_IGTF": {"red": 0.86313, "green": 0.75135, "blue": 0.80085},
+            "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.48701},
         }
 
         # recorre los datos de las columnas a y b y establece el color de fondo según la condición
@@ -166,6 +167,49 @@ class EdoCtaUpdate:
 
             elif mov_ident.loc[i, "tipo_p"] == "B3":
                 color = colors["no_conciliados"]
+                # agregar la solicitud de actualización de color
+                requests.append(
+                    {
+                        "repeatCell": {
+                            "range": {
+                                "sheetId": self.worksheet.id,
+                                "startRowIndex": i + 1,
+                                "endRowIndex": i + 2,
+                                "startColumnIndex": 0,
+                                "endColumnIndex": 5,
+                            },
+                            "cell": {"userEnteredFormat": {"backgroundColor": color}},
+                            "fields": "userEnteredFormat.backgroundColor",
+                        }
+                    }
+                )
+                cie = mov_ident.loc[i, "cie"]
+                nro_mov = mov_ident.loc[i, "mov_num"]
+                requests.append(
+                    {
+                        "updateCells": {
+                            "range": {
+                                "sheetId": self.worksheet.id,
+                                "startRowIndex": i + 1,
+                                "endRowIndex": i + 2,
+                                "startColumnIndex": 6,
+                                "endColumnIndex": 8,
+                            },
+                            "rows": [
+                                {
+                                    "values": [
+                                        {"userEnteredValue": {"stringValue": ""}},
+                                        {"userEnteredValue": {"stringValue": ""}},
+                                    ]
+                                }
+                            ],
+                            "fields": "userEnteredValue",
+                        }
+                    }
+                )
+
+            elif mov_ident.loc[i, "tipo_p"] == "B4":
+                color = colors["comisiones_IGTF"]
                 # agregar la solicitud de actualización de color
                 requests.append(
                     {
