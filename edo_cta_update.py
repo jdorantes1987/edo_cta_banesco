@@ -29,6 +29,35 @@ class EdoCtaUpdate:
         self.sheet_service = build("sheets", "v4", credentials=self.creds)
 
     def update_edo_cta(self, sheet_name, **kwargs):
+        """
+        Actualiza los colores y valores de las celdas en una hoja de cálculo de Google Sheets
+        según el estado de conciliación de los movimientos bancarios.
+        Argumentos:
+            sheet_name (str): El nombre de la hoja a actualizar.
+            **kwargs: Argumentos adicionales:
+            - fecha_d (str, opcional): Fecha de inicio para filtrar movimientos. Por defecto "NULL".
+            - fecha_h (str, opcional): Fecha de fin para filtrar movimientos. Por defecto "NULL".
+        Funcionalidad:
+            - Recupera los movimientos bancarios que necesitan ser actualizados y los combina con
+              los movimientos existentes en la hoja.
+            - Aplica colores de fondo a las filas según el tipo de movimiento (`tipo_p`):
+            - "B1": Conciliado (verde claro).
+            - "B2": Otros (gris).
+            - "B3": No conciliados (amarillo).
+            - "B4": Comisiones IGTF (rosa).
+            - Actualiza celdas específicas con valores concatenados o las limpia según el tipo de movimiento.
+            - Envía una solicitud de actualización por lotes a la API de Google Sheets para aplicar todos los cambios.
+        Notas:
+            - La función asume la existencia de una clase `Conciliacion` y una función
+              `get_edo_cta_con_identificador` para recuperar y procesar datos.
+            - Los objetos `self.sheet_service` y `self.spreadsheet` se utilizan para interactuar con
+              la API de Google Sheets.
+            - El objeto `self.worksheet` se utiliza para identificar la hoja objetivo para las actualizaciones.
+        Excepciones:
+            Cualquier excepción generada por la API de Google Sheets durante el proceso de actualización por lotes.
+        Imprime:
+            Un mensaje de confirmación ("¡colores actualizados!") al completar con éxito.
+        """
         fecha_d = kwargs.get("fecha_d", "NULL")
         fecha_h = kwargs.get("fecha_h", "NULL")
 
@@ -43,6 +72,7 @@ class EdoCtaUpdate:
                 "identif_mov_bco",
                 "mov_num",
                 "cie",
+                "fecha_otros_meses",
                 "tipo_p",
             ]
         ]
@@ -138,6 +168,7 @@ class EdoCtaUpdate:
                 )
                 cie = mov_ident.loc[i, "cie"]
                 nro_mov = mov_ident.loc[i, "mov_num"]
+                otros_meses = mov_ident.loc[i, "fecha_otros_meses"]
                 requests.append(
                     {
                         "updateCells": {
@@ -153,7 +184,11 @@ class EdoCtaUpdate:
                                     "values": [
                                         {
                                             "userEnteredValue": {
-                                                "stringValue": cie + " -> " + nro_mov
+                                                "stringValue": cie
+                                                + " -> "
+                                                + nro_mov
+                                                + " -> Fecha registro: "
+                                                + otros_meses.strftime("%d/%m/%Y")
                                             }
                                         },
                                         {"userEnteredValue": {"stringValue": ""}},

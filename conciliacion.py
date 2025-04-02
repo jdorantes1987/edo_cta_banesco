@@ -166,6 +166,7 @@ class Conciliacion:
             "referencia",
             "monto",
             "identif_mov_bco",
+            "fecha_otros_meses",
             "tipo_p",
         ]
         mov_identificados = self.get_movimientos_bancarios_identificados().copy()
@@ -186,6 +187,9 @@ class Conciliacion:
             },
             inplace=True,
         )
+
+        # Se establece el nombre de la columna de fecha
+        mov_identificados["fecha_otros_meses"] = ""
 
         # Se establece el tipo de partida
         mov_identificados["tipo_p"] = "B1"
@@ -210,6 +214,7 @@ class Conciliacion:
                 "cob_pag",
                 "correl",
                 "identif_edo_cta",
+                "fecha",
             ]
         ]
 
@@ -222,6 +227,7 @@ class Conciliacion:
                 "descrip": "concepto",
                 "doc_num": "referencia",
                 "identif_edo_cta": "identif_mov_bco",
+                "fecha": "fecha_otros_meses",
             },
             inplace=True,
         )
@@ -255,6 +261,9 @@ class Conciliacion:
         # Crea una columna vacía para el número de movimiento bancario
         comisiones_igtf["mov_num"] = ""
 
+        # Se establece el nombre de la columna de fecha
+        comisiones_igtf["fecha_otros_meses"] = ""
+
         # Se establece el tipo de partida
         comisiones_igtf["tipo_p"] = "B4"
 
@@ -279,6 +288,9 @@ class Conciliacion:
 
         # Crea una columna vacía para el número de movimiento bancario
         mov_sin_identificar["mov_num"] = ""
+
+        # Se establece el nombre de la columna de fecha
+        mov_sin_identificar["fecha_otros_meses"] = ""
 
         # Se establece el tipo de partida
         mov_sin_identificar["tipo_p"] = "B3"
@@ -612,7 +624,7 @@ class Conciliacion:
 
 if __name__ == "__main__":
     f_desde = "20250101"
-    f_hasta = "20250331"
+    f_hasta = "20250430"
     load_dotenv()
     # Para SQL Server
     datos_conexion = dict(
@@ -629,7 +641,7 @@ if __name__ == "__main__":
     #     fecha_d="20250301", fecha_h="20250331"
     # )
     # oConciliacion.insertar_movimientos_identificados(ultima_fecha="20250331")
-    # print(oConciliacion.get_movimientos_actualizar_edo_cta())
+    print(oConciliacion.get_movimientos_actualizar_edo_cta())
     # movimientos sin identificar libros
-    print(oConciliacion.get_mov_sin_identificar_libros())
+    # print(oConciliacion.get_mov_sin_identificar_libros())
     # print(datos)
