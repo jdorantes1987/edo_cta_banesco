@@ -25,18 +25,44 @@ class Conciliacion:
         ).get_movimientos_bancarios_con_identif(fecha_d=fecha_d, fecha_h=fecha_h)
 
     def get_movimientos_bancarios_identificados(self):
+        """
+        Identifica y recupera los movimientos bancarios que coinciden con las entradas del estado de cuenta.
+
+        Este método compara los identificadores de las transacciones bancarias con los del estado de cuenta
+        para determinar qué transacciones son comunes entre ambos conjuntos de datos.
+
+        Returns:
+            pandas.DataFrame: Un DataFrame que contiene las transacciones bancarias que han sido
+            identificadas como coincidentes con las entradas del estado de cuenta.
+        """
         conjunto_edo_cta = set(self.mov_edo_cta["identif_edo_cta"])
         movimientos_bancarios = self.mov_bancarios
         conjunto_mov_bco = set(movimientos_bancarios["identif_mov_bco"])
         conjunto_identificados = (
             conjunto_edo_cta & conjunto_mov_bco
-        )  # Determina que movimientos se cruzan
+        )  # Determina qué movimientos se cruzan
         movimientos_bancarios_identificados = movimientos_bancarios[
             movimientos_bancarios["identif_mov_bco"].isin(conjunto_identificados)
         ]
         return movimientos_bancarios_identificados
 
     def get_movimientos_bancarios_sin_identificar(self, **kwargs):
+        """
+        Identifica y recupera las transacciones bancarias que no están conciliadas con el estado de cuenta.
+
+        Este método compara dos conjuntos de transacciones: transacciones bancarias y transacciones del estado de cuenta.
+        Dependiendo del parámetro `mov`, identifica las transacciones que no están en los libros
+        o que no están en el estado de cuenta bacario.
+
+        Args:
+            **kwargs: Argumentos de palabra clave arbitrarios.
+            - mov (str): Una bandera para determinar el tipo de movimiento a identificar.
+              Si es "L", identifica las transacciones pendientes por identifica en libros que no están presentes en el estado de cuenta.
+              De lo contrario, identifica las transacciones del estado de cuenta que no están presentes en los registros bancarios.
+
+        Returns:
+            pandas.DataFrame: Un DataFrame que contiene las transacciones no conciliadas según el criterio especificado.
+        """
         mov = kwargs.get("mov", "L")
         movimientos_edo_cta = self.mov_edo_cta
         conjunto_edo_cta = set(movimientos_edo_cta["identif_edo_cta"])
@@ -57,6 +83,19 @@ class Conciliacion:
         return movimientos_por_identificar
 
     def get_movimientos_bancarios_identificados_de_otros_meses(self):
+        """
+        Identifica y recupera transacciones bancarias de meses anteriores al coincidir
+        patrones específicos de referencia entre el estado de cuenta y los libros.
+        Este método procesa las transacciones bancarias no identificadas tanto del
+        estado de cuenta como de los libros, extrae componentes específicos de las
+        referencias y las compara para identificar transacciones que correspondan a
+        meses anteriores.
+        Returns:
+            pandas.DataFrame: Un DataFrame que contiene las transacciones bancarias
+            identificadas de meses anteriores. El DataFrame resultante incluye datos
+            combinados tanto del estado de cuenta como de los libros, con columnas
+            con sufijos "_edo_cta" (estado de cuenta) y "_libro" (libros).
+        """
         edo_cta = self.get_movimientos_bancarios_sin_identificar(mov="E").copy()
         libro = self.get_movimientos_bancarios_sin_identificar(mov="L").copy()
 
@@ -92,6 +131,33 @@ class Conciliacion:
         return movimientos_bancarios_identificados
 
     def get_movimientos_actualizar_edo_cta(self):
+        """
+        Recupera y procesa los movimientos bancarios para actualizar el estado de cuenta.
+        Este método consolida varios tipos de movimientos bancarios, incluyendo movimientos
+        identificados, movimientos de otros meses, movimientos no identificados y comisiones
+        (por ejemplo, IGTF). Estandariza los nombres de las columnas, asigna tipos de movimientos
+        y filtra duplicados o entradas irrelevantes para preparar un conjunto de datos unificado
+        para la actualización del estado de cuenta.
+        Retorna:
+            pandas.DataFrame: Un DataFrame que contiene los movimientos bancarios consolidados
+            y ordenados con las siguientes columnas:
+            - fecha: La fecha del movimiento.
+            - mov_num: El número del movimiento bancario.
+            - cie: El estado o tipo de cuenta.
+            - concepto: La descripción o concepto del movimiento.
+            - referencia: El número de referencia del movimiento.
+            - monto: El monto del movimiento.
+            - identif_mov_bco: El identificador único del movimiento bancario.
+            - tipo_p: El tipo de movimiento (por ejemplo, B1, B2, B3, B4).
+        Notas:
+            - Los movimientos identificados se categorizan como "B1".
+            - Los movimientos identificados de otros meses se categorizan como "B2".
+            - Los movimientos no identificados se categorizan como "B3".
+            - Las comisiones e IGTF se categorizan como "B4".
+            - Los movimientos de otros meses y las comisiones se excluyen de los movimientos
+              no identificados para evitar duplicados.
+            - El DataFrame resultante se ordena por "fecha" y "mov_num" en orden ascendente.
+        """
         columnas_base = [
             "fecha",
             "mov_num",
@@ -247,6 +313,20 @@ class Conciliacion:
         return mov_a_actualizar.sort_values(by=["fecha", "mov_num"], ascending=True)
 
     def validacion_movimientos_a_insertar(self):
+        """
+        Valida y filtra los movimientos bancarios para ser insertados en la BD del sistema Profit.
+
+        Este método recupera los movimientos bancarios no identificados de tipo "E" y los une
+        con los datos de cuentas de ingreso y egreso. Actualiza el campo "Comentarios" basado
+        en el campo "Descripción" y filtra los datos resultantes para incluir solo las filas
+        donde el código de cuenta no sea nulo y el campo "Contabilizar" esté configurado como "SI".
+
+        Retorna:
+            pandas.DataFrame: Un DataFrame filtrado que contiene los movimientos bancarios validados
+            listos para su inserción. El DataFrame incluye solo las filas donde:
+            - El campo "co_cta_ingr_egr" no es nulo.
+            - El campo "Contabilizar" (insensible a mayúsculas) es igual a "SI".
+        """
         mov_sin_ident = self.get_movimientos_bancarios_sin_identificar(mov="E")
         cuentas_ing_egr = CuentasIngresoEgreso(
             self.conn
@@ -269,6 +349,21 @@ class Conciliacion:
         ]
 
     def insertar_movimientos_identificados(self, ultima_fecha):
+        """
+        Inserta movimientos bancarios identificados en la base de datos del sistema Profit.
+
+        Este método procesa un conjunto de movimientos bancarios, les asigna
+        identificadores únicos y los inserta en la base de datos. También
+        confirma la inserción después de procesar todos los movimientos.
+
+        Args:
+            ultima_fecha (str): La última fecha a considerar para recuperar el
+            último ID de movimiento bancario en Profit.
+
+        Returns:
+            pandas.DataFrame: Un DataFrame que contiene los datos de los
+            movimientos que fueron procesados e insertados.
+        """
         datos = self.validacion_movimientos_a_insertar()
         oMovBancariosOper = MovimientosBacariosOperaciones(self.conn)
         last_id_movbanco = oMovBancariosOper.get_last_id_movbanco(ultima_fecha)
@@ -294,6 +389,33 @@ class Conciliacion:
         return datos
 
     def insertar_movimientos_comisiones_igtf(self, fecha_d, fecha_h):
+        """
+        Inserta movimientos de comisiones e IGTF (Impuesto a las Grandes Transacciones Financieras)
+        no registrados en la base de datos Profit para un rango de fechas especificado.
+
+        Este método recupera los datos de comisiones e IGTF que no han sido registrados, los filtra
+        por el rango de fechas proporcionado y los inserta como nuevos movimientos bancarios en la base de datos.
+
+        Args:
+            fecha_d (datetime): La fecha de inicio del rango para filtrar los movimientos.
+            fecha_h (datetime): La fecha de fin del rango para filtrar los movimientos.
+
+        Returns:
+            pandas.DataFrame: Un DataFrame que contiene los datos de comisiones e IGTF filtrados que fueron procesados.
+
+        Raises:
+            Cualquier excepción generada por las operaciones de base de datos subyacentes o el procesamiento de datos.
+
+        Notas:
+            - El método asume que el objeto `oConciliacion` proporciona un método `get_comisiones_e_igtf_sin_registrar`
+              para recuperar los datos de comisiones e IGTF no registrados.
+            - La clase `MovimientosBacariosOperaciones` se utiliza para manejar las operaciones de base de datos
+              relacionadas con los movimientos bancarios.
+            - Se llama al método `new_movbanco` para insertar cada movimiento, y la inserción se confirma al final
+              utilizando `confirmar_insercion_movimientos_bancarios`.
+            - La descripción de cada movimiento se trunca a 159 caracteres si excede esta longitud.
+            - El método imprime el ID, la descripción y el monto de cada movimiento insertado para fines de registro.
+        """
         datos = oConciliacion.get_comisiones_e_igtf_sin_registrar()
         # Filtra entre fechas
         datos = datos[(datos["Fecha"] >= fecha_d) & (datos["Fecha"] <= fecha_h)]
@@ -321,6 +443,18 @@ class Conciliacion:
         return datos
 
     def get_comisiones_e_igtf_sin_registrar(self):
+        """
+        Recupera las comisiones e IGTF para ser registrados en la base de datos Profit.
+
+        Este método filtra y devuelve las comisiones e IGTF que están pendientes
+        de registro comparándolas con los movimientos bancarios no identificados.
+
+        Retorna:
+            pandas.DataFrame: Un DataFrame que contiene las comisiones e IGTF
+            pendientes de registro. El DataFrame incluye únicamente aquellas
+            transacciones cuyos identificadores coinciden con los movimientos
+            bancarios no identificados.
+        """
         comisiones_igtf = self.get_mov_igtf_comisiones(
             fecha_d=self.fecha_d, fecha_h=self.fecha_h
         )
@@ -334,6 +468,32 @@ class Conciliacion:
         return comisiones_igtf
 
     def get_mov_igtf_comisiones(self, fecha_d, fecha_h, **kwargs):
+        """
+        Extrae y procesa datos financieros para identificar transacciones relacionadas con IGTF
+        (Impuesto a las Grandes Transacciones Financieras) y comisiones del estado de cuenta bancario
+        dentro de un rango de fechas especificado.
+
+        Args:
+            fecha_d (datetime): La fecha de inicio para filtrar los movimientos del estado de cuenta.
+            fecha_h (datetime): La fecha de fin para filtrar los movimientos del estado de cuenta.
+            **kwargs: Argumentos adicionales (no utilizados en la implementación actual).
+
+        Returns:
+            DataFrame: Un DataFrame consolidado que contiene lo siguiente:
+            - Pagos de IGTF con 4 repeticiones en referencias bancarias.
+            - Cobros de IGTF con 3 repeticiones en referencias bancarias.
+            - Comisiones de pagos.
+            - Comisiones de cobros.
+            - Una nueva columna `co_cta_ingr_egr` para incluir la cuenta de ingresos y egresos "6-2-01-01-0004".
+
+        Notas:
+            - Filtra transacciones con fechas no nulas y no vacías dentro del rango especificado.
+            - Identifica pagos de IGTF basándose en patrones específicos de repeticiones y porcentajes.
+            - Identifica cobros de IGTF al cruzar referencias y filtrar por porcentaje y número de repeticiones.
+            - Identifica comisiones de pagos basándose en umbrales específicos de porcentaje.
+            - Identifica comisiones de cobros basándose en un porcentaje fijo (-0.015).
+            - Combina todas las transacciones identificadas en un único DataFrame para análisis posterior.
+        """
         data_edo_cta = self.mov_edo_cta
         # filtra los valores no nulos y entre fechas
         f_edo_cta_sin_nulos = data_edo_cta[
@@ -426,6 +586,17 @@ class Conciliacion:
         return df_union_query
 
     def get_mov_sin_identificar_libros(self):
+        """
+        Recupera los movimientos bancarios no identificados registrados en libros y no identificados en el estado de cuenta,
+        excluyendo aquellos que han sido identificados en otros meses.
+
+        Este método obtiene los movimientos bancarios marcados como no identificados
+        (mov="L") y excluye los movimientos que ya han sido identificados en otros meses.
+
+        Retorna:
+            pandas.DataFrame: Un DataFrame que contiene los movimientos bancarios
+            no identificados en los libros, excluyendo los identificados en otros meses.
+        """
         mov_sin_identificar = self.get_movimientos_bancarios_sin_identificar(mov="L")
         set_mov_identif_otros_meses = set(
             self.get_movimientos_bancarios_identificados_de_otros_meses()[
@@ -452,11 +623,8 @@ if __name__ == "__main__":
     oConciliacion = Conciliacion(
         conexion=oConexion, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
-    # print(
-    #     oConciliacion.get_comisiones_e_igtf_a_insertar(
-    #         fecha_d="20250101", fecha_h="20250331"
-    #     )
-    # )
+    # print(oConciliacion.get_comisiones_e_igtf_sin_registrar())
+    # print(oConciliacion.validacion_movimientos_a_insertar())
     # oConciliacion.insertar_movimientos_comisiones_igtf(
     #     fecha_d="20250301", fecha_h="20250331"
     # )
