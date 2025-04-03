@@ -5,7 +5,7 @@ from pandas import DataFrame
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 KEY = "key.json"
 # Escribe aquí el ID de tu documento:
-SPREADSHEET_ID = "184qv4XkWNPLu08jZvSCPcFQmVstNSn5USnHN35k-48w"
+SPREADSHEET_ID = "1QeY6G-VkcC-s6B2irJA3M2jVnmxxMvcgCIWiZfc4UCM"
 
 creds = None
 creds = service_account.Credentials.from_service_account_file(KEY, scopes=SCOPES)
