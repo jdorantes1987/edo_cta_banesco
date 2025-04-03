@@ -60,7 +60,7 @@ class MovimientosBancarios:
     def get_movimientos_bancarios_con_identif(self, **kwargs):
         fecha_d = kwargs.get("fecha_d", "NULL")
         fecha_h = kwargs.get("fecha_h", "NULL")
-        datos = self.get_movimientos_bancarios(fecha_d=fecha_d, fecha_h=fecha_h)
+        datos = self.get_movimientos_bancarios(fecha_d=fecha_d, fecha_h=fecha_h).copy()
         datos["fecha"] = to_datetime(datos["fecha"])
         datos["unicos"] = (
             datos["fecha"].dt.month.astype("str")
@@ -69,7 +69,7 @@ class MovimientosBancarios:
             + "|"
             + datos["monto"].astype("str")
         )
-        datos = get_identificador_unicos(datos, "unicos")
+        datos = get_identificador_unicos(datos, "unicos").copy()
         datos.drop(columns=["unicos"], inplace=True)
         datos.rename(columns={"identificador": "identif_mov_bco"}, inplace=True)
         return datos
