@@ -90,10 +90,10 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "conciliado": {"red": 0.84193, "green": 0.96354, "blue": 0.90938},
-            "otros": {"red": 0.81498, "green": 0.81494, "blue": 0.81485},
+            "conciliado": {"red": 0.48235, "green": 0.77911, "blue": 0.61064},
+            "otros": {"red": 0.81303, "green": 0.84689, "blue": 0.91234},
             "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
-            "comisiones_IGTF": {"red": 0.86313, "green": 0.75135, "blue": 0.80085},
+            "comisiones_IGTF": {"red": 0.9142, "green": 0.89099, "blue": 0.86016},
             "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.48701},
         }
 
@@ -310,6 +310,6 @@ if __name__ == "__main__":
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
-    fecha_h = "20250331"
+    fecha_h = "20250430"
     oEdoCtaUpdate = EdoCtaUpdate(oConexion)
     oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
