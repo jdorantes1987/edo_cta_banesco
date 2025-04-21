@@ -430,7 +430,11 @@ class Conciliacion:
         """
         datos = oConciliacion.get_comisiones_e_igtf_sin_registrar()
         # Filtra entre fechas
-        datos = datos[(datos["Fecha"] >= fecha_d) & (datos["Fecha"] <= fecha_h)]
+        datos = datos[
+            (datos["Fecha"] >= fecha_d)
+            & (datos["Fecha"] <= fecha_h)
+            & (datos["Contabilizar"].str.upper() != "NO")
+        ]
         oMovBancariosOper = MovimientosBacariosOperaciones(self.conn)
         last_id_movbanco = oMovBancariosOper.get_last_id_movbanco(fecha_h)
         for index, row in datos.iterrows():
@@ -638,10 +642,10 @@ if __name__ == "__main__":
     # print(oConciliacion.get_comisiones_e_igtf_sin_registrar())
     # print(oConciliacion.validacion_movimientos_a_insertar())
     # oConciliacion.insertar_movimientos_comisiones_igtf(
-    #     fecha_d="20250301", fecha_h="20250331"
+    #     fecha_d="20250401", fecha_h="20250430"
     # )
-    # oConciliacion.insertar_movimientos_identificados(ultima_fecha="20250331")
-    print(oConciliacion.get_movimientos_actualizar_edo_cta())
+    # oConciliacion.insertar_movimientos_identificados(ultima_fecha="20250430")
+    # print(oConciliacion.get_movimientos_actualizar_edo_cta())
     # movimientos sin identificar libros
-    # print(oConciliacion.get_mov_sin_identificar_libros())
+    print(oConciliacion.get_mov_sin_identificar_libros())
     # print(datos)
