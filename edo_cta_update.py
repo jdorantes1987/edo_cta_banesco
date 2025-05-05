@@ -93,7 +93,7 @@ class EdoCtaUpdate:
             "conciliado": {"red": 0.48235, "green": 0.77911, "blue": 0.61064},
             "otros": {"red": 0.81303, "green": 0.84689, "blue": 0.91234},
             "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
-            "comisiones_IGTF": {"red": 0.9142, "green": 0.89099, "blue": 0.86016},
+            "comisiones_IGTF": {"red": 0.97475, "green": 0.95142, "blue": 0.83619},
             "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.48701},
         }
 
