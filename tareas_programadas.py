@@ -1,8 +1,10 @@
 import time
 from datetime import datetime
-from edo_cta_update import EdoCtaUpdate
-from conciliacion import Conciliacion
+
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from conciliacion import Conciliacion
+from edo_cta_update import EdoCtaUpdate
 
 
 class TareasProgramada:
