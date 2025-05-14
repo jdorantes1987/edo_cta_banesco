@@ -90,10 +90,10 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "conciliado": {"red": 0.48235, "green": 0.77911, "blue": 0.61064},
-            "otros": {"red": 0.81303, "green": 0.84689, "blue": 0.91234},
+            "conciliado": {"red": 0.69677, "green": 0.95142, "blue": 0.78703},
+            "otros": {"red": 0.56497, "green": 0.99999, "blue": 0.99989},
             "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
-            "comisiones_IGTF": {"red": 0.97475, "green": 0.95142, "blue": 0.83619},
+            "comisiones_IGTF": {"red": 0.89007, "green": 0.82291, "blue": 0.79238},
             "no_conciliados": {"red": 1.00005, "green": 0.99999, "blue": 0.48701},
         }
 
