@@ -628,7 +628,7 @@ class Conciliacion:
 
 if __name__ == "__main__":
     f_desde = "20250101"
-    f_hasta = "20250430"
+    f_hasta = "20250531"
     load_dotenv()
     # Para SQL Server
     datos_conexion = dict(
