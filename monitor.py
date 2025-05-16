@@ -116,12 +116,8 @@ class GoogleSheetMonitor:
                                             f"insertar_movimientos_identificados: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"
                                         )
                                         tConciliacion.insertar_movimientos_identificados(
-                                            ultima_fecha="20250430"
+                                            ultima_fecha=kwargs.get("fecha_h", "NULL"),
                                         )
-                                        time.sleep(
-                                            10
-                                        )  # Espera 10 segundos antes de continuar
-
                                         # Si se detectaron cambios, actualizar la hoja de cálculo
                                         logging.info(
                                             f"actualizar_colores_edo_cta: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -166,7 +162,7 @@ if __name__ == "__main__":
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
-    fecha_h = "20250430"
+    fecha_h = "20250531"
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(oConexion)
     try:
