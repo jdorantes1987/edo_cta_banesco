@@ -90,7 +90,7 @@ class EdoCtaUpdate:
 
         # definir los colores de fondo
         colors = {
-            "conciliado": {"red": 0.69677, "green": 0.95142, "blue": 0.78703},
+            "conciliado": {"red": 0.84661, "green": 0.99999, "blue": 0.86136},
             "otros": {"red": 0.56497, "green": 0.99999, "blue": 0.99989},
             "rosa_palido": {"red": 0.95649, "green": 0.8349, "blue": 0.90027},
             "comisiones_IGTF": {"red": 0.89007, "green": 0.82291, "blue": 0.79238},
@@ -114,8 +114,19 @@ class EdoCtaUpdate:
                                 "startColumnIndex": 0,
                                 "endColumnIndex": 5,
                             },
-                            "cell": {"userEnteredFormat": {"backgroundColor": color}},
-                            "fields": "userEnteredFormat.backgroundColor",
+                            "cell": {
+                                "userEnteredFormat": {
+                                    "backgroundColor": color,
+                                    "textFormat": {
+                                        "foregroundColor": {
+                                            "red": 0.22116,
+                                            "green": 0.31015,
+                                            "blue": 0.11965,
+                                        }
+                                    },
+                                }
+                            },
+                            "fields": "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
                         }
                     }
                 )
@@ -213,8 +224,19 @@ class EdoCtaUpdate:
                                 "startColumnIndex": 0,
                                 "endColumnIndex": 5,
                             },
-                            "cell": {"userEnteredFormat": {"backgroundColor": color}},
-                            "fields": "userEnteredFormat.backgroundColor",
+                            "cell": {
+                                "userEnteredFormat": {
+                                    "backgroundColor": color,
+                                    "textFormat": {
+                                        "foregroundColor": {
+                                            "red": 0.46441,
+                                            "green": 0.37692,
+                                            "blue": 0.08836,
+                                        }
+                                    },
+                                }
+                            },
+                            "fields": "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
                         }
                     }
                 )
@@ -256,8 +278,19 @@ class EdoCtaUpdate:
                                 "startColumnIndex": 0,
                                 "endColumnIndex": 5,
                             },
-                            "cell": {"userEnteredFormat": {"backgroundColor": color}},
-                            "fields": "userEnteredFormat.backgroundColor",
+                            "cell": {
+                                "userEnteredFormat": {
+                                    "backgroundColor": color,
+                                    "textFormat": {
+                                        "foregroundColor": {
+                                            "red": 0.31016,
+                                            "green": 0.08804,
+                                            "blue": 0.02063,
+                                        }
+                                    },
+                                },
+                            },
+                            "fields": "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
                         }
                     }
                 )
@@ -310,6 +343,6 @@ if __name__ == "__main__":
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
-    fecha_h = "20250430"
+    fecha_h = "20250531"
     oEdoCtaUpdate = EdoCtaUpdate(oConexion)
     oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
