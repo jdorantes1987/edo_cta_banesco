@@ -172,3 +172,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+key_edo_cta_jackson_dorantes.json
+key.json
