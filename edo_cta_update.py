@@ -172,7 +172,18 @@ class EdoCtaUpdate:
                                 "startColumnIndex": 0,
                                 "endColumnIndex": 5,
                             },
-                            "cell": {"userEnteredFormat": {"backgroundColor": color}},
+                            "cell": {
+                                "userEnteredFormat": {
+                                    "backgroundColor": color,
+                                    "textFormat": {
+                                        "foregroundColor": {
+                                            "red": 0.31016,
+                                            "green": 0.08804,
+                                            "blue": 0.02063,
+                                        }
+                                    },
+                                }
+                            },
                             "fields": "userEnteredFormat.backgroundColor",
                         }
                     }
