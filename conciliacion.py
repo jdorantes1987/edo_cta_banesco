@@ -3,11 +3,11 @@ import sys
 
 sys.path.append("..\\profit")
 from conn.conexion import DatabaseConnector
-from data.mod.compra.cie import CuentasIngresoEgreso
 from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
+from data.mod.compra.cie import CuentasIngresoEgreso
 from dotenv import load_dotenv
 from numpy import where
-from pandas import merge, concat, DataFrame
+from pandas import DataFrame, concat, merge
 
 from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
@@ -305,6 +305,11 @@ class Conciliacion:
         # se excluye los movimientos identificados de otros meses
         mov_sin_identificar = mov_sin_identificar[
             ~mov_sin_identificar["identif_mov_bco"].isin(set_mov_identif_otros_meses)
+        ]
+
+        # se excluye los movimientos identificados de otros meses de las comisiones
+        comisiones_igtf = comisiones_igtf[
+            ~comisiones_igtf["identif_mov_bco"].isin(set_mov_identif_otros_meses)
         ]
 
         # se excluye las comisiones e IGTF
