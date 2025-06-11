@@ -177,14 +177,14 @@ class EdoCtaUpdate:
                                     "backgroundColor": color,
                                     "textFormat": {
                                         "foregroundColor": {
-                                            "red": 0.31016,
-                                            "green": 0.08804,
-                                            "blue": 0.02063,
+                                            "red": 0.0,
+                                            "green": 0.0,
+                                            "blue": 0.0,
                                         }
                                     },
                                 }
                             },
-                            "fields": "userEnteredFormat.backgroundColor",
+                            "fields": "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
                         }
                     }
                 )
