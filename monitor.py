@@ -10,8 +10,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 from conciliacion import Conciliacion
 from edo_cta_update import EdoCtaUpdate
 
-logging.basicConfig(level=logging.INFO)
-
 # Autenticación y acceso a Google Sheets
 scope = [
     "https://spreadsheets.google.com/feeds",
@@ -43,7 +41,7 @@ class GoogleSheetMonitor:
             with open("page_token.txt", "w") as f:
                 f.write(token)
         except Exception as e:
-            print(f"Error al guardar el token de página: {e}")
+            logging.error(f"Error al guardar el token de página: {e}", exc_info=True)
 
     def get_file_details(self, file_id):
         """
@@ -57,7 +55,7 @@ class GoogleSheetMonitor:
             )
             return file
         except Exception as e:
-            print(f"Error al obtener detalles del archivo: {e}")
+            logging.error(f"Error al obtener detalles del archivo: {e}", exc_info=True)
             return None
 
     def monitor_sheet_changes(self, sheet_id, **kwargs):
@@ -138,7 +136,7 @@ class GoogleSheetMonitor:
                     # Esperar 60 segundos antes de la próxima verificación
                     time.sleep(60)
                 except Exception as e:
-                    logging.error(f"Error en el ciclo de monitoreo: {e}")
+                    logging.error(f"Error al procesar cambios: {e}", exc_info=True)
                     time.sleep(10)  # Espera antes de reintentar
 
         except HttpError as error:
@@ -162,7 +160,7 @@ if __name__ == "__main__":
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
-    fecha_h = "20250531"
+    fecha_h = "20250630"
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(oConexion)
     try:
