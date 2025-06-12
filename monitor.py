@@ -140,9 +140,9 @@ class GoogleSheetMonitor:
                     time.sleep(10)  # Espera antes de reintentar
 
         except HttpError as error:
-            print(f"Ocurrió un error: {error}")
+            logging.error(f"Ocurrió un error: {error}", exc_info=True)
         except Exception as e:
-            print(f"Error inesperado: {e}")
+            logging.error(f"Error inesperado: {e}", exc_info=True)
 
 
 if __name__ == "__main__":
@@ -153,10 +153,11 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
 
     load_dotenv()
+    logging.config.fileConfig("logging.ini")
     # Para SQL Server
     datos_conexion = dict(
-        host=os.environ["HOST_PRODUCCION_PROFIT"],
-        base_de_datos=os.environ["DB_NAME_DERECHA_PROFIT"],
+        host=os.getenv("HOST_PRODUCCION_PROFIT"),
+        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
