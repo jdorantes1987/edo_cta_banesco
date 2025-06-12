@@ -633,12 +633,12 @@ class Conciliacion:
 
 if __name__ == "__main__":
     f_desde = "20250101"
-    f_hasta = "20250531"
+    f_hasta = "20250630"
     load_dotenv()
     # Para SQL Server
     datos_conexion = dict(
-        host=os.environ["HOST_PRODUCCION_PROFIT"],
-        base_de_datos=os.environ["DB_NAME_DERECHA_PROFIT"],
+        host=os.getenv("HOST_PRODUCCION_PROFIT"),
+        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     oConciliacion = Conciliacion(
