@@ -582,10 +582,7 @@ class Conciliacion:
         edo_cta_sin_igtf["porcentaje"] = edo_cta_sin_igtf.apply(
             lambda x: round(x["Monto"] / x["Monto_Ant"], ndigits=3), axis=1
         )
-        com_de_pagos = edo_cta_sin_igtf[
-            (edo_cta_sin_igtf["porcentaje"] == 0.003)
-            | (edo_cta_sin_igtf["porcentaje"] == 0.004)
-        ]
+        com_de_pagos = edo_cta_sin_igtf[(edo_cta_sin_igtf["porcentaje"] == 0.003)]
         # print("Comisiones de pagos\n", com_de_pagos.to_string())
         # ----------------------------------------OBTENER COMISIONES DE COBROS------------------------------------------------->
         edo_cta_sin_com_pag = edo_cta_sin_igtf[
