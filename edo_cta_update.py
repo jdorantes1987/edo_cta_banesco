@@ -349,11 +349,11 @@ if __name__ == "__main__":
     load_dotenv()
     # Para SQL Server
     datos_conexion = dict(
-        host=os.environ["HOST_PRODUCCION_PROFIT"],
-        base_de_datos=os.environ["DB_NAME_DERECHA_PROFIT"],
+        host=os.getenv("HOST_PRODUCCION_PROFIT"),
+        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
     )
     oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     fecha_d = "20250101"
-    fecha_h = "20250531"
+    fecha_h = "20250630"
     oEdoCtaUpdate = EdoCtaUpdate(oConexion)
     oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
