@@ -1,11 +1,8 @@
-import os
 import sys
 
 sys.path.append("..\\profit")
-from conn.conexion import DatabaseConnector
 from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
 from data.mod.compra.cie import CuentasIngresoEgreso
-from dotenv import load_dotenv
 from numpy import where
 from pandas import DataFrame, concat, merge
 
@@ -629,17 +626,27 @@ class Conciliacion:
 
 
 if __name__ == "__main__":
+    import os
+
+    from dotenv import load_dotenv
+
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
+
+    load_dotenv(override=True)
+
+    # Para SQL Server
+    sqlserver_connector = SQLServerConnector(
+        host=os.environ["HOST_PRODUCCION_PROFIT"],
+        database=os.environ["DB_NAME_DERECHA_PROFIT"],
+        user=os.environ["DB_USER_PROFIT"],
+        password=os.environ["DB_PASSWORD_PROFIT"],
+    )
+    db = DatabaseConnector(sqlserver_connector)
     f_desde = "20250101"
     f_hasta = "20250630"
-    load_dotenv(override=True)
-    # Para SQL Server
-    datos_conexion = dict(
-        host=os.getenv("HOST_PRODUCCION_PROFIT"),
-        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
-    )
-    oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
     oConciliacion = Conciliacion(
-        conexion=oConexion, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
+        conexion=db, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
     # print(oConciliacion.get_comisiones_e_igtf_sin_registrar())
     # print(oConciliacion.validacion_movimientos_a_insertar())

@@ -147,24 +147,27 @@ class GoogleSheetMonitor:
 
 
 if __name__ == "__main__":
-
     import os
 
-    from conn.conexion import DatabaseConnector
     from dotenv import load_dotenv
 
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
+
     load_dotenv(override=True)
-    logging.config.fileConfig("logging.ini")
+
     # Para SQL Server
-    datos_conexion = dict(
-        host=os.getenv("HOST_PRODUCCION_PROFIT"),
-        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
+    sqlserver_connector = SQLServerConnector(
+        host=os.environ["HOST_PRODUCCION_PROFIT"],
+        database=os.environ["DB_NAME_DERECHA_PROFIT"],
+        user=os.environ["DB_USER_PROFIT"],
+        password=os.environ["DB_PASSWORD_PROFIT"],
     )
-    oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
+    db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
     fecha_h = "20250630"
     # Crear instancia de GoogleSheetMonitor
-    oMonitor = GoogleSheetMonitor(oConexion)
+    oMonitor = GoogleSheetMonitor(db)
     try:
         sheet_id = "1QeY6G-VkcC-s6B2irJA3M2jVnmxxMvcgCIWiZfc4UCM"
         oMonitor.monitor_sheet_changes(sheet_id, fecha_d=fecha_d, fecha_h=fecha_h)

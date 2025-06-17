@@ -78,19 +78,24 @@ class MovimientosBancarios:
 if __name__ == "__main__":
     import os
 
-    from conn.conexion import DatabaseConnector
     from dotenv import load_dotenv
 
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
+
     load_dotenv(override=True)
+
     # Para SQL Server
-    datos_conexion = dict(
-        host=os.getenv("HOST_PRODUCCION_PROFIT"),
-        base_de_datos=os.getenv("DB_NAME_DERECHA_PROFIT"),
+    sqlserver_connector = SQLServerConnector(
+        host=os.environ["HOST_PRODUCCION_PROFIT"],
+        database=os.environ["DB_NAME_DERECHA_PROFIT"],
+        user=os.environ["DB_USER_PROFIT"],
+        password=os.environ["DB_PASSWORD_PROFIT"],
     )
-    oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
+    db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
     fecha_h = "20250331"
-    mov_bco = MovimientosBancarios(oConexion).get_movimientos_bancarios_con_identif(
+    mov_bco = MovimientosBancarios(db).get_movimientos_bancarios_con_identif(
         fecha_d=fecha_d, fecha_h=fecha_h
     )
     print(mov_bco)
