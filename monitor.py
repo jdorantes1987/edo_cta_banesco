@@ -153,7 +153,7 @@ if __name__ == "__main__":
     from conn.conexion import DatabaseConnector
     from dotenv import load_dotenv
 
-    load_dotenv()
+    load_dotenv(override=True)
     logging.config.fileConfig("logging.ini")
     # Para SQL Server
     datos_conexion = dict(

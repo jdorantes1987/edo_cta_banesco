@@ -631,7 +631,7 @@ class Conciliacion:
 if __name__ == "__main__":
     f_desde = "20250101"
     f_hasta = "20250630"
-    load_dotenv()
+    load_dotenv(override=True)
     # Para SQL Server
     datos_conexion = dict(
         host=os.getenv("HOST_PRODUCCION_PROFIT"),
