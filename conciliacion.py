@@ -1,3 +1,5 @@
+import logging
+import logging.config
 import sys
 
 from numpy import where
@@ -10,6 +12,8 @@ sys.path.append("..\\profit")
 from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
 from data.mod.compra.cie import CuentasIngresoEgreso
 
+logging.config.fileConfig("logging.ini")
+
 
 class Conciliacion:
     def __init__(self, conexion, sheet_name_edo_cta, fecha_d, fecha_h):
@@ -21,6 +25,7 @@ class Conciliacion:
         self.mov_bancarios = MovimientosBancarios(
             conexion
         ).get_movimientos_bancarios_con_identif(fecha_d=fecha_d, fecha_h=fecha_h)
+        self.logger = logging.getLogger(__class__.__name__)
 
     def get_movimientos_bancarios_identificados(self):
         """
@@ -393,7 +398,7 @@ class Conciliacion:
                 monto_mov=row["Monto"],
                 monto_idb=0.0,
             )
-            print(
+            self.logger.info(
                 new_id_movbanco
                 + " --> "
                 + row["Comentarios"]
@@ -451,7 +456,7 @@ class Conciliacion:
                 monto_mov=row["Monto"],
                 monto_idb=0.0,
             )
-            print(
+            self.logger.info(
                 new_id_movbanco
                 + " --> "
                 + row["Descripción"]
@@ -629,10 +634,9 @@ class Conciliacion:
 if __name__ == "__main__":
     import os
 
-    from dotenv import load_dotenv
-
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
+    from dotenv import load_dotenv
 
     load_dotenv(override=True)
 
