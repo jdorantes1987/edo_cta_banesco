@@ -118,8 +118,8 @@ class GoogleSheetMonitor:
                                             fecha_d=kwargs.get("fecha_d", "NULL"),
                                             fecha_h=kwargs.get("fecha_h", "NULL"),
                                         )
-                                        print(
-                                            f"insertar_movimientos_identificados: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"
+                                        self.logger.info(
+                                            f"insertar_movimientos_identificados: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                                         )
                                         tConciliacion.insertar_movimientos_identificados(
                                             ultima_fecha=kwargs.get("fecha_h", "NULL"),
@@ -128,6 +128,8 @@ class GoogleSheetMonitor:
                                         self.logger.info(
                                             f"actualizar_colores_edo_cta: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
                                         )
+                                        # Espera para evitar problemas de concurrencia
+                                        time.sleep(5)
                                         oEdoCtaUpdate.update_edo_cta("2025", **kwargs)
                                         cambios = False
 
@@ -171,7 +173,7 @@ if __name__ == "__main__":
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
-    fecha_h = "20250630"
+    fecha_h = "20250731"
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(db)
     try:

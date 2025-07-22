@@ -8,7 +8,6 @@ from edo_cta import get_edo_cta_con_identificador
 
 
 class EdoCtaUpdate:
-
     def __init__(self, conexion):
         self.conn = conexion
         # Autenticación y acceso a Google Sheets
@@ -359,6 +358,6 @@ if __name__ == "__main__":
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
-    fecha_h = "20250630"
+    fecha_h = "20250731"
     oEdoCtaUpdate = EdoCtaUpdate(db)
     oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
