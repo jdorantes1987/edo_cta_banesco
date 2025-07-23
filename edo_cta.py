@@ -1,19 +1,20 @@
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from pandas import DataFrame, to_datetime
-from functions import get_identificador_unicos
+import os
 
-# Autenticación y acceso a Google Sheets
-scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
-]
-creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
+from dotenv import load_dotenv
+from pandas import DataFrame, to_datetime
+
+from data_sheets import ManagerSheets
+from functions import get_identificador_unicos
 
 
 def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
-    client = gspread.authorize(creds)
-    spreadsheet = client.open("edo_cta_banesco")
+    load_dotenv(override=True)
+    oManager = ManagerSheets(
+        file_sheet_name=os.getenv("FILE_EDO_CTA_NAME"),
+        spreadsheet_id=os.getenv("FILE_EDO_CTA_ID"),
+        credentials_file=os.getenv("APPLICATION_CREDENTIALS"),
+    )
+    df_edo_cta = oManager.get_data_hoja(sheet_name)
     lista_columnas = [
         "Fecha",
         "Referencia",
@@ -24,13 +25,7 @@ def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
         "Contabilizar",
         "identificador",
     ]
-    worksheet = spreadsheet.worksheet(sheet_name)
 
-    # Obtiene todos los valores de la hoja de cálculo
-    df_edo_cta = DataFrame(
-        worksheet.get_all_values()[1:],
-        columns=worksheet.get_all_values()[0],  # Selecciona las filas y columnas
-    )
     df_edo_cta = df_edo_cta[
         df_edo_cta["Fecha"].notnull()
     ]  # Elimina las filas que no tienen fecha asociada

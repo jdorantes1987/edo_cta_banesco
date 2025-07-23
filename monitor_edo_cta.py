@@ -66,14 +66,14 @@ class GoogleSheetMonitor:
             )
             return None
 
-    def monitor_sheet_changes(self, sheet_id, **kwargs):
+    def monitor_sheet_changes(self, manager_sheets, **kwargs):
         """
         Monitorea cambios en una hoja de cálculo específica.
         Args:
             sheet_id: El ID de la hoja de cálculo a monitorear.
         """
 
-        oEdoCtaUpdate = EdoCtaUpdate(self.conexion)
+        oEdoCtaUpdate = EdoCtaUpdate(self.conexion, manager_sheets)
         cambios = False
         excluidos = [
             "estados-de-cuenta-bantel@bantel-sheets.iam.gserviceaccount.com",
@@ -98,10 +98,12 @@ class GoogleSheetMonitor:
                         )
 
                         for change in response.get("changes", []):
-                            if change.get("fileId") == sheet_id:
+                            if change.get("fileId") == manager_sheets.spreadsheet_id:
                                 self.logger.info("¡Se detectaron cambios en la hoja!")
                                 # Obtener detalles del archivo
-                                file_details = self.get_file_details(sheet_id)
+                                file_details = self.get_file_details(
+                                    manager_sheets.spreadsheet_id
+                                )
                                 if file_details:
                                     file_name = file_details.get("name", "Desconocido")
                                     last_user = file_details.get(
@@ -162,14 +164,21 @@ if __name__ == "__main__":
     from conn.sql_server_connector import SQLServerConnector
     from dotenv import load_dotenv
 
+    from data_sheets import ManagerSheets
+
     load_dotenv(override=True)
 
     # Para SQL Server
     sqlserver_connector = SQLServerConnector(
-        host=os.environ["HOST_PRODUCCION_PROFIT"],
-        database=os.environ["DB_NAME_DERECHA_PROFIT"],
-        user=os.environ["DB_USER_PROFIT"],
-        password=os.environ["DB_PASSWORD_PROFIT"],
+        host=os.getenv("HOST_PRODUCCION_PROFIT"),
+        database=os.getenv("DB_NAME_DERECHA_PROFIT"),
+        user=os.getenv("DB_USER_PROFIT"),
+        password=os.getenv("DB_PASSWORD_PROFIT"),
+    )
+    oManager = ManagerSheets(
+        file_sheet_name=os.getenv("FILE_EDO_CTA_NAME"),
+        spreadsheet_id=os.getenv("FILE_EDO_CTA_ID"),
+        credentials_file=os.getenv("APPLICATION_CREDENTIALS"),
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
@@ -177,7 +186,9 @@ if __name__ == "__main__":
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(db)
     try:
-        sheet_id = "1QeY6G-VkcC-s6B2irJA3M2jVnmxxMvcgCIWiZfc4UCM"
-        oMonitor.monitor_sheet_changes(sheet_id, fecha_d=fecha_d, fecha_h=fecha_h)
+        sheet_id = os.getenv("FILE_EDO_CTA_ID")
+        oMonitor.monitor_sheet_changes(
+            manager_sheets=oManager, fecha_d=fecha_d, fecha_h=fecha_h
+        )
     except Exception as e:
         print(f"Error al iniciar el monitoreo: {e}")
