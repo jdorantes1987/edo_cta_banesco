@@ -1,4 +1,5 @@
 import os
+import sys
 
 from dotenv import load_dotenv
 from pandas import DataFrame, to_datetime
@@ -8,11 +9,17 @@ from functions import get_identificador_unicos
 
 
 def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
-    load_dotenv(override=True)
+    sys.path.append("..\\profit")
+    env_path = os.path.join("..\\profit", ".env")
+    load_dotenv(
+        dotenv_path=env_path,
+        override=True,
+    )  # Recarga las variables de entorno desde el archivo
+
     oManager = ManagerSheets(
         file_sheet_name=os.getenv("FILE_EDO_CTA_NAME"),
         spreadsheet_id=os.getenv("FILE_EDO_CTA_ID"),
-        credentials_file=os.getenv("APPLICATION_CREDENTIALS"),
+        credentials_file=os.getenv("EDO_CTA_CREDENTIALS"),
     )
     df_edo_cta = oManager.get_data_hoja(sheet_name)
     lista_columnas = [

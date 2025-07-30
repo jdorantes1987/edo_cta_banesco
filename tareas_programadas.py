@@ -68,17 +68,29 @@ class TareasProgramada:
 
 if __name__ == "__main__":
     import os
+    import sys
 
-    from conn.conexion import DatabaseConnector
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
     from dotenv import load_dotenv
 
-    load_dotenv(override=True)
+    sys.path.append("..\\profit")
+
+    env_path = os.path.join("..\\profit", ".env")
+    load_dotenv(
+        dotenv_path=env_path,
+        override=True,
+    )  # Recarga las variables de entorno desde el archivo
+
     # Para SQL Server
-    datos_conexion = dict(
+    sqlserver_connector = SQLServerConnector(
         host=os.environ["HOST_PRODUCCION_PROFIT"],
-        base_de_datos=os.environ["DB_NAME_DERECHA_PROFIT"],
+        database=os.environ["DB_NAME_DERECHA_PROFIT"],
+        user=os.environ["DB_USER_PROFIT"],
+        password=os.environ["DB_PASSWORD_PROFIT"],
     )
-    oConexion = DatabaseConnector(db_type="sqlserver", **datos_conexion)
+    db = DatabaseConnector(sqlserver_connector)
+    oConexion = DatabaseConnector(db)
     fecha_d = "20250101"
     fecha_h = "20250430"
     tareas_programadas = TareasProgramada(oConexion)

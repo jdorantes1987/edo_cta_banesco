@@ -159,6 +159,7 @@ class GoogleSheetMonitor:
 
 if __name__ == "__main__":
     import os
+    import sys
 
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
@@ -166,7 +167,13 @@ if __name__ == "__main__":
 
     from data_sheets import ManagerSheets
 
-    load_dotenv(override=True)
+    sys.path.append("..\\profit")
+
+    env_path = os.path.join("..\\profit", ".env")
+    load_dotenv(
+        dotenv_path=env_path,
+        override=True,
+    )  # Recarga las variables de entorno desde el archivo
 
     # Para SQL Server
     sqlserver_connector = SQLServerConnector(
@@ -178,7 +185,7 @@ if __name__ == "__main__":
     oManager = ManagerSheets(
         file_sheet_name=os.getenv("FILE_EDO_CTA_NAME"),
         spreadsheet_id=os.getenv("FILE_EDO_CTA_ID"),
-        credentials_file=os.getenv("APPLICATION_CREDENTIALS"),
+        credentials_file=os.getenv("EDO_CTA_CREDENTIALS"),
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
