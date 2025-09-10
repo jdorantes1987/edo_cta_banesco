@@ -32,10 +32,14 @@ class GoogleSheetMonitor:
         self.drive_service = build("drive", "v3", credentials=creds)
 
     def load_page_token(self):
-        """Carga el último token de página guardado."""
+        """Carga el último token de página guardado y valida que sea correcto."""
         try:
             with open("page_token.txt", "r") as f:
-                return f.read().strip()
+                token = f.read().strip()
+                # Si el token está vacío o claramente inválido, retorna None
+                if not token or token == "\x00\x00\x00\x00":
+                    return None
+                return token
         except FileNotFoundError:
             return None
 
@@ -145,8 +149,8 @@ class GoogleSheetMonitor:
                                 page_token = response["newStartPageToken"]
                             break
 
-                    # Esperar 60 segundos antes de la próxima verificación
-                    time.sleep(60)
+                    # Esperar 10 segundos antes de la próxima verificación
+                    time.sleep(10)
                 except Exception as e:
                     self.logger.error(f"Error al procesar cambios: {e}", exc_info=True)
                     time.sleep(10)  # Espera antes de reintentar
@@ -189,7 +193,7 @@ if __name__ == "__main__":
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
-    fecha_h = "20250731"
+    fecha_h = "20250930"
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(db)
     try:
