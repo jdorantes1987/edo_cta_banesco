@@ -149,8 +149,8 @@ class GoogleSheetMonitor:
                                 page_token = response["newStartPageToken"]
                             break
 
-                    # Esperar 10 segundos antes de la próxima verificación
-                    time.sleep(10)
+                    # Esperar 30 segundos antes de la próxima verificación
+                    time.sleep(30)
                 except Exception as e:
                     self.logger.error(f"Error al procesar cambios: {e}", exc_info=True)
                     time.sleep(10)  # Espera antes de reintentar
@@ -191,6 +191,7 @@ if __name__ == "__main__":
         spreadsheet_id=os.getenv("FILE_EDO_CTA_ID"),
         credentials_file=os.getenv("EDO_CTA_CREDENTIALS"),
     )
+    sqlserver_connector.connect()
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
     fecha_h = "20250930"
@@ -201,5 +202,6 @@ if __name__ == "__main__":
         oMonitor.monitor_sheet_changes(
             manager_sheets=oManager, fecha_d=fecha_d, fecha_h=fecha_h
         )
+        sqlserver_connector.close()
     except Exception as e:
         print(f"Error al iniciar el monitoreo: {e}")
