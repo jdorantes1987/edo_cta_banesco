@@ -55,6 +55,12 @@ class MovimientosBancarios:
         datos["monto"] = where(
             datos["monto_d"] > 0, -datos["monto_d"], datos["monto_h"]
         )
+
+        # Actualizar mov_num cuando el origen sea 'BAN'
+        datos["mov_num"] = where(
+            datos["origen"] == "BAN", datos["mov_num"], datos["cob_pag"]
+        )
+        datos["mov_num"] = datos["mov_num"].str.strip()
         return datos[columns_select]
 
     def get_movimientos_bancarios_con_identif(self, **kwargs):
@@ -101,8 +107,8 @@ if __name__ == "__main__":
     )
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
-    fecha_h = "20250331"
-    mov_bco = MovimientosBancarios(db).get_movimientos_bancarios_con_identif(
+    fecha_h = "20250930"
+    mov_bco = MovimientosBancarios(db).get_movimientos_bancarios(
         fecha_d=fecha_d, fecha_h=fecha_h
     )
     print(mov_bco)
