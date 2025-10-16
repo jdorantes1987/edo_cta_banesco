@@ -194,7 +194,7 @@ if __name__ == "__main__":
     sqlserver_connector.connect()
     db = DatabaseConnector(sqlserver_connector)
     fecha_d = "20250101"
-    fecha_h = "20250930"
+    fecha_h = "20251031"
     # Crear instancia de GoogleSheetMonitor
     oMonitor = GoogleSheetMonitor(db)
     try:

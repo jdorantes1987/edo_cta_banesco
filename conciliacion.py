@@ -653,7 +653,7 @@ if __name__ == "__main__":
     )
     db = DatabaseConnector(sqlserver_connector)
     f_desde = "20250101"
-    f_hasta = "20250731"
+    f_hasta = "20251031"
     oConciliacion = Conciliacion(
         conexion=db, sheet_name_edo_cta="2025", fecha_d=f_desde, fecha_h=f_hasta
     )
