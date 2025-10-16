@@ -165,15 +165,16 @@ if __name__ == "__main__":
     import os
     import sys
 
-    from conn.database_connector import DatabaseConnector
-    from conn.sql_server_connector import SQLServerConnector
     from dotenv import load_dotenv
 
     from data_sheets import ManagerSheets
 
-    sys.path.append("..\\profit")
+    sys.path.append("..\\conexiones")
 
-    env_path = os.path.join("..\\profit", ".env")
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
+
+    env_path = os.path.join("..\\conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,

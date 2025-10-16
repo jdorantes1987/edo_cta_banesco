@@ -9,8 +9,8 @@ from functions import get_identificador_unicos
 
 
 def get_edo_cta_con_identificador(sheet_name: str) -> DataFrame:
-    sys.path.append("..\\profit")
-    env_path = os.path.join("..\\profit", ".env")
+    sys.path.append("..\\conexiones")
+    env_path = os.path.join("..\\conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,

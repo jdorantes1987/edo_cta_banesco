@@ -87,12 +87,12 @@ if __name__ == "__main__":
 
     from dotenv import load_dotenv
 
+    sys.path.append("..\\conexiones")
+
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
 
-    sys.path.append("..\\profit")
-
-    env_path = os.path.join("..\\profit", ".env")
+    env_path = os.path.join("..\\conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,
