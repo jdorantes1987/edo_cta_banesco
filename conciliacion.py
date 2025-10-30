@@ -9,8 +9,8 @@ from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
 
 sys.path.append("../profit")
-from data.mod.banco.mov_bancarios_oper import (
-    MovimientosBacariosOperaciones,
+from data.mod.banco.mov_bancarios_oper import (  # noqa: E402
+    MovimientosBacariosOperaciones,  # noqa: E402
 )  # noqa: E402
 from data.mod.compra.cie import CuentasIngresoEgreso  # noqa: E402
 
