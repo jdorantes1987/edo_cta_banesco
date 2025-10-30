@@ -1,13 +1,12 @@
 import sys
 
 from numpy import where
+from pandas import to_datetime
 
 sys.path.append("../profit")
 
-from data.sql_read import ReadSql
-from pandas import to_datetime
-
-from functions import get_identificador_unicos
+from data.sql_read import ReadSql  # noqa: E402
+from functions import get_identificador_unicos  # noqa: E402
 
 
 class MovimientosBancarios:

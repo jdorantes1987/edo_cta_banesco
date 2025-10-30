@@ -1,4 +1,4 @@
-from pandas import merge
+from pandas import merge, to_datetime
 
 from conciliacion import Conciliacion
 from edo_cta import get_edo_cta_con_identificador
@@ -108,7 +108,7 @@ class EdoCtaUpdate:
                                     "values": [
                                         {
                                             "userEnteredValue": {
-                                                "stringValue": cie + " -> " + nro_mov
+                                                "stringValue": f"{cie} -> {nro_mov}"
                                             }
                                         },
                                         {"userEnteredValue": {"stringValue": ""}},
@@ -152,6 +152,7 @@ class EdoCtaUpdate:
                 cie = mov_ident.loc[i, "cie"]
                 nro_mov = mov_ident.loc[i, "mov_num"]
                 otros_meses = mov_ident.loc[i, "fecha_otros_meses"]
+                otros_meses = to_datetime(str(otros_meses))
                 requests.append(
                     {
                         "updateCells": {
@@ -167,11 +168,7 @@ class EdoCtaUpdate:
                                     "values": [
                                         {
                                             "userEnteredValue": {
-                                                "stringValue": cie
-                                                + " -> "
-                                                + nro_mov
-                                                + " -> Fecha registro: "
-                                                + otros_meses.strftime("%d/%m/%Y")
+                                                "stringValue": f"{cie} -> {nro_mov} -> Fecha registro: {otros_meses.strftime('%d/%m/%Y')}"
                                             }
                                         },
                                         {"userEnteredValue": {"stringValue": ""}},
@@ -305,13 +302,14 @@ if __name__ == "__main__":
     import os
     import sys
 
-    from conn.database_connector import DatabaseConnector
-    from conn.sql_server_connector import SQLServerConnector
     from dotenv import load_dotenv
 
     from data_sheets import ManagerSheets
 
     sys.path.append("../conexiones")
+
+    from conn.database_connector import DatabaseConnector
+    from conn.sql_server_connector import SQLServerConnector
 
     env_path = os.path.join("../conexiones", ".env")
     load_dotenv(
@@ -333,6 +331,6 @@ if __name__ == "__main__":
         credentials_file=os.getenv("EDO_CTA_CREDENTIALS"),
     )
     fecha_d = "20250101"
-    fecha_h = "20250731"
+    fecha_h = "20251031"
     oEdoCtaUpdate = EdoCtaUpdate(db, oManager)
     oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
