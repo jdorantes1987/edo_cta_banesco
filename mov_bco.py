@@ -2,7 +2,7 @@ import sys
 
 from numpy import where
 
-sys.path.append("..\\profit")
+sys.path.append("../profit")
 
 from data.sql_read import ReadSql
 from pandas import to_datetime
@@ -87,12 +87,12 @@ if __name__ == "__main__":
 
     from dotenv import load_dotenv
 
-    sys.path.append("..\\conexiones")
+    sys.path.append("../conexiones")
 
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
 
-    env_path = os.path.join("..\\conexiones", ".env")
+    env_path = os.path.join("../conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,

@@ -8,9 +8,11 @@ from pandas import DataFrame, concat, merge
 from edo_cta import get_edo_cta_con_identificador
 from mov_bco import MovimientosBancarios
 
-sys.path.append("..\\profit")
-from data.mod.banco.mov_bancarios_oper import MovimientosBacariosOperaciones
-from data.mod.compra.cie import CuentasIngresoEgreso
+sys.path.append("../profit")
+from data.mod.banco.mov_bancarios_oper import (
+    MovimientosBacariosOperaciones,
+)  # noqa: E402
+from data.mod.compra.cie import CuentasIngresoEgreso  # noqa: E402
 
 logging.config.fileConfig("logging.ini")
 
@@ -637,12 +639,12 @@ if __name__ == "__main__":
 
     from dotenv import load_dotenv
 
-    sys.path.append("..\\conexiones")
+    sys.path.append("../conexiones")
 
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
 
-    env_path = os.path.join("..\\conexiones", ".env")
+    env_path = os.path.join("../conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,

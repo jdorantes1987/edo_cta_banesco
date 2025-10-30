@@ -169,12 +169,12 @@ if __name__ == "__main__":
 
     from data_sheets import ManagerSheets
 
-    sys.path.append("..\\conexiones")
+    sys.path.append("../conexiones")
 
     from conn.database_connector import DatabaseConnector
     from conn.sql_server_connector import SQLServerConnector
 
-    env_path = os.path.join("..\\conexiones", ".env")
+    env_path = os.path.join("../conexiones", ".env")
     load_dotenv(
         dotenv_path=env_path,
         override=True,
@@ -203,6 +203,6 @@ if __name__ == "__main__":
         oMonitor.monitor_sheet_changes(
             manager_sheets=oManager, fecha_d=fecha_d, fecha_h=fecha_h
         )
-        sqlserver_connector.close()
+        sqlserver_connector.close_connection()
     except Exception as e:
         print(f"Error al iniciar el monitoreo: {e}")
