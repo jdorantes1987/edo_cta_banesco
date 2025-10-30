@@ -3,7 +3,6 @@ import logging.config
 import time
 from datetime import datetime
 
-import gspread
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
@@ -22,7 +21,6 @@ scope = [
 
 # Cargar credenciales
 creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
-client = gspread.authorize(creds)
 
 
 class GoogleSheetMonitor:
