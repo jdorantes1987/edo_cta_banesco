@@ -1,7 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
 from pandas import DataFrame
 
 
@@ -12,31 +11,32 @@ class ManagerSheets:
         self.credentials_file = credentials_file
         self.spreadsheet = self.get_spreadsheet()
 
-    def get_spreadsheet(self, sheet_name=None):
+    def get_spreadsheet(self):
         # Autenticación y acceso a Google Sheets
-        self.scope = [
+        # oauth2client espera una cadena de scopes; google-auth acepta lista
+        self.scopes = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive",
         ]
-        # Cambia aquí: usa from_json_keyfile_dict si credentials_file es un dict
+        # Construir credenciales con google-auth (aceptadas por gspread y googleapiclient)
         if isinstance(self.credentials_file, dict):
-            self.creds = ServiceAccountCredentials.from_json_keyfile_dict(
-                self.credentials_file, self.scope
+            self.creds = Credentials.from_service_account_info(
+                self.credentials_file, scopes=self.scopes
             )
         else:
-            self.creds = ServiceAccountCredentials.from_json_keyfile_name(
-                self.credentials_file, self.scope
+            self.creds = Credentials.from_service_account_file(
+                self.credentials_file, scopes=self.scopes
             )
         client = gspread.authorize(self.creds)
         return client.open(self.file_sheet_name)
 
     def get_service(self):
         creds = Credentials.from_service_account_file(
-            self.credentials_file, scopes=self.scope
+            self.credentials_file, scopes=self.scopes
         )
         return build("sheets", "v4", credentials=creds)
 
-    def get_data_hoja(self, sheet_name=None) -> DataFrame:
+    def get_data_hoja(self, sheet_name) -> DataFrame:
         # Selecciona la hoja de Google Sheets
         worksheet = self.spreadsheet.worksheet(sheet_name)
         # Obtiene todos los valores de la hoja de cálculo

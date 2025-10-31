@@ -13,7 +13,7 @@ class EdoCtaUpdate:
     def update_edo_cta(self, sheet_name, **kwargs):
         fecha_d = kwargs.get("fecha_d", "NULL")
         fecha_h = kwargs.get("fecha_h", "NULL")
-        self.spreadsheet = self.manager_sheets.get_spreadsheet(sheet_name=sheet_name)
+        self.spreadsheet = self.manager_sheets.get_spreadsheet()
         sheetId = (
             self.service.spreadsheets()
             .get(spreadsheetId=self.spreadsheet.id)
@@ -333,4 +333,4 @@ if __name__ == "__main__":
     fecha_d = "20250101"
     fecha_h = "20251031"
     oEdoCtaUpdate = EdoCtaUpdate(db, oManager)
-    oEdoCtaUpdate.update_edo_cta("2025", fecha_d=fecha_d, fecha_h=fecha_h)
+    oEdoCtaUpdate.update_edo_cta(sheet_name="2025", fecha_d=fecha_d, fecha_h=fecha_h)

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 from conciliacion import Conciliacion
 from edo_cta_update import EdoCtaUpdate
@@ -19,8 +19,8 @@ scope = [
     "https://www.googleapis.com/auth/spreadsheets",
 ]
 
-# Cargar credenciales
-creds = ServiceAccountCredentials.from_json_keyfile_name("key.json", scope)
+# Cargar credenciales usando google-auth (acepta lista de scopes)
+creds = Credentials.from_service_account_file("key.json", scopes=scope)
 
 
 class GoogleSheetMonitor:
